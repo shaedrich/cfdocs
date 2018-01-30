@@ -69,43 +69,49 @@
 		</div>
 	</div>
 
-	<cfif data.type IS NOT "404" AND data.type IS NOT "index">
+	<cfif data.type neq "index">
 		<ol class="breadcrumb container">
-			<li><a href="/">CFDocs</a></li>
-			<cfif NOT structKeyExists(url, "name")>
-				<cfset url.name = data.name>
-			</cfif>
-			<cfif data.type IS "function" OR url.name contains "-functions"><li><a href="#linkTo("functions")#">Functions</a></li></cfif>
-			<cfif data.type IS "tag" OR url.name contains "-tags"><li><a href="#linkTo("tags")#">Tags</a></li></cfif>
-			<cfset cat = findCategory(url.name)>
-			<cfif Len(cat)><li><a href="#linkTo(cat)#">#application.categories[cat].name#</a></li></cfif>
-			<li class="active">#data.name#</li>			
+			<cfif data.type neq "404">
+				<li><a href="/">CFDocs</a></li>
+				<cfif NOT structKeyExists(url, "name")>
+					<cfset url.name = data.name>
+				</cfif>
+				<cfif data.type IS "function" OR url.name contains "-functions"><li><a href="#linkTo("functions")#">Functions</a></li></cfif>
+				<cfif data.type IS "tag" OR url.name contains "-tags"><li><a href="#linkTo("tags")#">Tags</a></li></cfif>
+				<cfset cat = findCategory(url.name)>
+				<cfif Len(cat)><li><a href="#linkTo(cat)#">#application.categories[cat].name#</a></li></cfif>
+				<li class="active">#data.name#</li>			
 
-			<cfif StructKeyExists(data, "engines") AND StructKeyExists(data.engines, "coldfusion") AND StructKeyExists(data.engines.coldfusion, "docs") AND Len(data.engines.coldfusion.docs)>
+				<cfif StructKeyExists(data, "engines") AND StructKeyExists(data.engines, "coldfusion") AND StructKeyExists(data.engines.coldfusion, "docs") AND Len(data.engines.coldfusion.docs)>
+					<li class="pull-right">
+						<a href="#data.engines.coldfusion.docs#" title="Official Adobe ColdFusion Docs" class="label label-acf">CF<cfif StructKeyExists(data.engines.coldfusion, "minimum_version") AND Len(data.engines.coldfusion.minimum_version)>#encodeForHTML(data.engines.coldfusion.minimum_version)#+</cfif></a>
+					</li>
+				</cfif>
+				<cfif StructKeyExists(data, "engines") AND StructKeyExists(data.engines, "lucee") AND StructKeyExists(data.engines.lucee, "docs") AND Len(data.engines.lucee.docs)>
+					<li class="pull-right">
+						<a href="#data.engines.lucee.docs#" title="Official Lucee Docs" class="label label-lucee">Lucee<cfif StructKeyExists(data.engines.lucee, "minimum_version") AND Len(data.engines.lucee.minimum_version)>#encodeForHTML(data.engines.lucee.minimum_version)#+</cfif></a>
+					</li>
+				</cfif>
+				<cfif StructKeyExists(data, "engines") AND StructKeyExists(data.engines, "openbd") AND StructKeyExists(data.engines.openbd, "docs") AND Len(data.engines.openbd.docs)>
+					<li class="pull-right">
+						<a href="#data.engines.openbd.docs#" title="Official OpenBD Docs" class="label label-openbd">BD</a>
+					</li>
+				</cfif>
+				<cfif structKeyExists(data, "engines") AND NOT structIsEmpty(data.engines)>
+					<li role="separator" class="pull-right divider"></li>
+				</cfif>
 				<li class="pull-right">
-					<a href="#data.engines.coldfusion.docs#" title="Official Adobe ColdFusion Docs" class="label label-acf">CF<cfif StructKeyExists(data.engines.coldfusion, "minimum_version") AND Len(data.engines.coldfusion.minimum_version)>#encodeForHTML(data.engines.coldfusion.minimum_version)#+</cfif></a>
+					<span class="label label-warning">
+						<a href="https://github.com/foundeo/cfdocs/issues?q=is:issue%20is:open%20#encodeForURL(data.name)#" class="issuecount badge">0</a>
+						<a href="https://github.com/foundeo/cfdocs/issues/new?title=#encodeForURL(data.name)#" rel="nofollow" class="issuebutton" title="Report an Issue">Issue</a>
+					</span>
 				</li>
-			</cfif>
-			<cfif StructKeyExists(data, "engines") AND StructKeyExists(data.engines, "lucee") AND StructKeyExists(data.engines.lucee, "docs") AND Len(data.engines.lucee.docs)>
-				<li class="pull-right">
-					<a href="#data.engines.lucee.docs#" title="Official Lucee Docs" class="label label-lucee">Lucee<cfif StructKeyExists(data.engines.lucee, "minimum_version") AND Len(data.engines.lucee.minimum_version)>#encodeForHTML(data.engines.lucee.minimum_version)#+</cfif></a>
-				</li>
-			</cfif>
-			<cfif StructKeyExists(data, "engines") AND StructKeyExists(data.engines, "openbd") AND StructKeyExists(data.engines.openbd, "docs") AND Len(data.engines.openbd.docs)>
-				<li class="pull-right">
-					<a href="#data.engines.openbd.docs#" title="Official OpenBD Docs" class="label label-openbd">BD</a>
-				</li>
-			</cfif>
-			<cfif structKeyExists(data, "engines") AND NOT structIsEmpty(data.engines)>
-				<li role="separator" class="pull-right divider"></li>
-			</cfif>
-			<li class="pull-right">
-		    		<span class="label label-warning">
-					<a href="https://github.com/foundeo/cfdocs/issues?q=is:issue%20is:open%20#encodeForURL(data.name)#" class="issuecount badge">0</a>
-					<a href="https://github.com/foundeo/cfdocs/issues/new?title=#encodeForURL(data.name)#" rel="nofollow" class="issuebutton" title="Report an Issue">Issue</a>
-				</span>
-			</li>
-			<cfif StructKeyExists(request,"gitFilePath") AND Len(request.gitFilePath) AND not (REFind("(cf|lucee)[0-9]{1,3}",data.name) OR ArrayContains(['tags','functions','guides','all','categories'],data.name) )>
+				<cfif StructKeyExists(request,"gitFilePath") AND Len(request.gitFilePath) AND not (REFind("(cf|lucee)[0-9]{1,3}",data.name) OR ArrayContains(['tags','functions','guides','all','categories'],data.name) )>
+					<li class="pull-right">
+						<a href="https://github.com/foundeo/cfdocs#request.gitFilePath#" rel="nofollow" class="label label-danger">Edit</a>
+					</li>
+				</cfif>
+			<cfelse>
 				<li class="pull-right">
 					<a href="https://github.com/foundeo/cfdocs#request.gitFilePath#" rel="nofollow" class="label label-danger">Edit</a>
 				</li>
