@@ -1,15 +1,26 @@
 <cfparam name="url.name" default="rereplace">
 <cfparam name="url.index" default="1" type="numeric">
-<cfparam name="url.engine" default="acf2016" type="variablename">
 <cfsilent>
     <cfset url.name = ReReplace(url.name, "[^a-zA-Z0-9_-]", "", "ALL")>
     <cfif FileExists(ExpandPath("./data/en/#url.name#.json"))>
-        <cfset data = DeserializeJSON( FileRead(ExpandPath("./data/en/#url.name#.json")))>
+        <cfscript>
+            data = DeserializeJSON(FileRead(ExpandPath("./data/en/#url.name#.json")));
+            if(StructCount(data.engines)) {
+                if(StructCount(data.engines) is 1) {
+                    cfparam(name="engine", type="variablename", default = data.engines[structKeyArray(data.engines)[1]]);
+                }
+                else if(NOT StructKeyExists(data, "examples") OR NOT isArray(data.examples) OR ArrayLen(data.examples) EQ 0 OR url.index GT ArrayLen(data.examples) OR url.index LT 1 AND StructCount(getVersionFromText(data.examples[Int(url.index)])) {
+                    _engine = getVersionFromText(data.examples[Int(url.index)]);
+                    cfparam(name="engine", type="variablename", default = LCase(_engine).engine&_engine.version);
+                }
+            }
+        </cfscript>
     <cfelse>
         <cfset data={title="404"}>
     </cfif>
     <cfset request.skipLayout=true>
 </cfsilent>
+<cfparam name="url.engine" default="acf2016" type="variablename">
 <!doctype html>
 <html lang="en" ng-app="trycf">
 <head>
@@ -21,7 +32,7 @@
     </cfoutput>
 </head>
 <body>
-<cfif NOT StructKeyExists(data, "examples") OR NOT IsArray(data.examples) OR ArrayLen(data.examples) EQ 0 OR url.index GT ArrayLen(data.examples) OR url.index LT 1>
+<cfif NOT StructKeyExists(data, "examples") OR NOT isArray(data.examples) OR ArrayLen(data.examples) EQ 0 OR url.index GT ArrayLen(data.examples) OR url.index LT 1>
     <p>Sorry no dice</p>
 <cfelse>
     <cfset example = data.examples[Int(url.index)]>
