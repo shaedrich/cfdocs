@@ -96,6 +96,54 @@
 		<cfset arguments.content = ReReplace(arguments.content, "`([^`]+)`", "<code>\1</code>", "ALL")>
 		<cfreturn arguments.content>
 	</cffunction>
+	
+	<cffunction name="getVersionFromText">
+		<cfargument name="text" type="string">
+		<cfscript>
+		    _result = {};
+
+		// add CFx+ badge
+		    if(REFind("CF[0-9.]+\+", arguments.text)) {
+			_result = REReplaceCallback("CF([0-9.]+\+)", arguments.text, function(groups) {
+			    if(isArray(groups) AND ArrayLen(groups))
+				return {engine: "CF", version: groups[1]};
+			    else
+				return groups;
+			    });
+		    }
+		    // add Luceex+ badge
+		    if (REFind("Lucee[0-9.]+\+", arguments.text)) {
+			_result = REReplaceCallback("Lucee([0-9.]+\+)", arguments.text, function(groups) {
+			    if(isArray(groups) AND ArrayLen(groups))
+				return {engine: "Lucee", version: groups[1]};
+			    else
+				return groups;
+			    });
+		    }
+		</cfscript>
+		<cfreturn _result>
+	</cffunction>
+
+	<cffunction name="REReplaceCallback">
+		<cfargument name="re" type="string">
+		<cfargument name="str" type="string" default="">
+		<cfargument name="callback" type="function">
+		
+		<cfscript>
+			var pattern = CreateObject("java","java.util.regex.Pattern").Compile(Arguments.re);
+			var matcher = pattern.Matcher(Arguments.str);
+			if(matcher.find()) {
+				var groups = [];
+				for(var i = 1; i lte matcher.groupCount(); i++) {
+					ArrayAppend(groups,matcher.group(Val(i)));
+				}
+				return Arguments.callback(groups);
+			}
+			else {
+				return Arguments.callback(false);
+			}
+		</cfscript>
+	</cffunction>
 
 	<cffunction name="findCategory">
 		<cfargument name="name"  default="#url.name#">
