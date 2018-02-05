@@ -100,26 +100,26 @@
 	<cffunction name="getVersionFromText">
 		<cfargument name="text" type="string">
 		<cfscript>
-		    _result = {};
+		    	_result = {};
 
-		// add CFx+ badge
-		    if(REFind("CF[0-9.]+\+", arguments.text)) {
+			// add CFx+ badge
+			if(REFind("CF[0-9.]+\+", arguments.text)) {
 			_result = REReplaceCallback("CF([0-9.]+\+)", arguments.text, function(groups) {
 			    if(isArray(groups) AND ArrayLen(groups))
-				return {engine: "CF", version: groups[1]};
+				return {engine: "ACF", version: groups[1]};
 			    else
 				return groups;
 			    });
-		    }
-		    // add Luceex+ badge
-		    if (REFind("Lucee[0-9.]+\+", arguments.text)) {
+			}
+			// add Luceex+ badge
+			if (REFind("Lucee[0-9.]+\+", arguments.text)) {
 			_result = REReplaceCallback("Lucee([0-9.]+\+)", arguments.text, function(groups) {
 			    if(isArray(groups) AND ArrayLen(groups))
 				return {engine: "Lucee", version: groups[1]};
 			    else
 				return groups;
 			    });
-		    }
+			}
 		</cfscript>
 		<cfreturn _result>
 	</cffunction>
